@@ -93,7 +93,9 @@ int main(void)
   MX_SPI2_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  LCD_Init(&hspi2);
+  LCD_Img = gImage_sputnik;
+  LCD_ShowImg(&hspi2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -101,7 +103,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+    HAL_UART_Transmit(&huart1, (uint8_t *)"I drive\r\n", 9, 1000);
+    HAL_Delay(500);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -174,7 +177,7 @@ static void MX_SPI2_Init(void)
   hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi2.Init.NSS = SPI_NSS_HARD_OUTPUT;
+  hspi2.Init.NSS = SPI_NSS_SOFT;
   hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
   hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
