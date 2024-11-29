@@ -96,6 +96,7 @@ int main(void)
   LCD_Init(&hspi2);
   LCD_Img = gImage_sputnik;
   LCD_ShowImg(&hspi2);
+	HAL_Delay(500);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -103,8 +104,27 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    HAL_UART_Transmit(&huart1, (uint8_t *)"I drive\r\n", 9, 1000);
-    HAL_Delay(500);
+    //LED交替闪烁证明程序运行
+    HAL_GPIO_TogglePin(GPIOH, RGB_R_Pin);
+    HAL_Delay(50);
+    HAL_GPIO_TogglePin(GPIOH, RGB_R_Pin);
+    HAL_Delay(50);
+    HAL_GPIO_TogglePin(GPIOH, RGB_G_Pin);
+    HAL_Delay(50);
+    HAL_GPIO_TogglePin(GPIOH, RGB_G_Pin);
+    HAL_Delay(50);
+    HAL_GPIO_TogglePin(GPIOH, RGB_B_Pin);
+    HAL_Delay(50);
+    HAL_GPIO_TogglePin(GPIOH, RGB_B_Pin);
+    HAL_Delay(50);
+    // LCD_SetRegion(&hspi2,0, 0, 239, 239);
+    // uint8_t cmd_white = 0xFF;
+    // for (int i = 0; i < 57600; i++)
+    // {
+    //     HAL_SPI_Transmit(&hspi2, &cmd_white, 1, 100);
+    //     HAL_SPI_Transmit(&hspi2, &cmd_white, 1, 100);
+    // }
+		
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -177,12 +197,12 @@ static void MX_SPI2_Init(void)
   hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi2.Init.NSS = SPI_NSS_SOFT;
+  hspi2.Init.NSS = SPI_NSS_HARD_OUTPUT;
   hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
   hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi2.Init.CRCPolynomial = 10;
+  hspi2.Init.CRCPolynomial = 7;
   if (HAL_SPI_Init(&hspi2) != HAL_OK)
   {
     Error_Handler();

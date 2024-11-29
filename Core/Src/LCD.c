@@ -4,10 +4,18 @@ const uint8_t *LCD_Img;
 
 HAL_StatusTypeDef LCD_Init(SPI_HandleTypeDef *hspi){
 
+    //被要求特别注意
+    HAL_GPIO_WritePin(SCK_GPIO_Port, SCK_Pin, GPIO_PIN_SET);
+
     LCD_Reset(hspi); // 复位屏幕，防止出现乱色
+
+	LCD_WriteCmd(hspi, 0x11); //sleep out，唤醒屏幕
 
     LCD_WriteCmd(hspi, 0x3A);  // 设置颜色格式为16位真彩
     LCD_WriteData8(hspi, 0x05); // 03 4K; 05 65K; 06 262K
+
+    LCD_WriteCmd(hspi, 0xC5);  // VCOM，是屏幕的对比度
+    LCD_WriteData8(hspi, 0x1A);
 
     LCD_WriteCmd(hspi, 0x36);  // 设置屏幕方向
     LCD_WriteData8(hspi, 0x00); 
@@ -19,87 +27,105 @@ HAL_StatusTypeDef LCD_Init(SPI_HandleTypeDef *hspi){
     //----------- ST7789S Frame rate setting ---------//
     //解释：帧率设置，用于调整屏幕刷新速度, 60Hz, 通过调整VBP、VFP、VSYNC、HBP、HFP、HSYNC来调整
 	LCD_WriteCmd(hspi, 0xB2);				
-	LCD_WriteData8(hspi, 0x0C);
-	LCD_WriteData8(hspi, 0x0C);
+	LCD_WriteData8(hspi, 0x05);
+	LCD_WriteData8(hspi, 0x05);
 	LCD_WriteData8(hspi, 0x00);
 	LCD_WriteData8(hspi, 0x33);
 	LCD_WriteData8(hspi, 0x33);
 	
-	LCD_WriteCmd(hspi, 0xB7); 
-	LCD_WriteData8(hspi, 0x35);
+	LCD_WriteCmd(hspi, 0xB7); //Gate Control
+	LCD_WriteData8(hspi, 0x05); 
 	  
     //----------- ST7789S Power setting ---------//
     //解释：电源设置，用于调整屏幕亮度
-	LCD_WriteCmd(hspi, 0xBB);
-	LCD_WriteData8(hspi, 0x19);
+	LCD_WriteCmd(hspi, 0xBB); //VCOM
+	LCD_WriteData8(hspi, 0x3F);
 	
-	LCD_WriteCmd(hspi, 0xC0);
+	LCD_WriteCmd(hspi, 0xC0); //Power Control 
 	LCD_WriteData8(hspi, 0x2C);
 	
-	LCD_WriteCmd(hspi, 0xC2);
+	LCD_WriteCmd(hspi, 0xC2); //VDV and VRH Command Enable
 	LCD_WriteData8(hspi, 0x01);
 	
-	LCD_WriteCmd(hspi, 0xC3);
-	LCD_WriteData8(hspi, 0x12);   
+	LCD_WriteCmd(hspi, 0xC3); //VRH Set
+	LCD_WriteData8(hspi, 0x0F);   //4.3+
 	
-	LCD_WriteCmd(hspi, 0xC4);
-	LCD_WriteData8(hspi, 0x20);  
+	LCD_WriteCmd(hspi, 0xC4);  //VDV Set
+	LCD_WriteData8(hspi, 0x20);  //0v
 	
-	LCD_WriteCmd(hspi, 0xC6); 
-	LCD_WriteData8(hspi, 0x0F);    
+	LCD_WriteCmd(hspi, 0xC6); //Frame Rate Comtrol in Normal Mode 这都什么玩意
+	LCD_WriteData8(hspi, 0x01);  //111Hz
 	
-	LCD_WriteCmd(hspi, 0xD0); 
+	LCD_WriteCmd(hspi, 0xD0);  //Power Control 1
 	LCD_WriteData8(hspi, 0xA4);
 	LCD_WriteData8(hspi, 0xA1);
+
+    LCD_WriteCmd(hspi, 0xE8); //Power Control 1
+    LCD_WriteData8(hspi, 0x03);
+
+    LCD_WriteCmd(hspi, 0xE9); //Equalize time control
+    LCD_WriteData8(hspi, 0x09);
+    LCD_WriteData8(hspi, 0x09);
+    LCD_WriteData8(hspi, 0x08);
  
     //----------- Posistive Voltage Gamma Control ---------//
     //解释：正电压伽马控制， 用于调整屏幕颜色
 	LCD_WriteCmd(hspi, 0xE0);
 	LCD_WriteData8(hspi, 0xD0);
-	LCD_WriteData8(hspi, 0x04);
-	LCD_WriteData8(hspi, 0x0D);
-	LCD_WriteData8(hspi, 0x11);
-	LCD_WriteData8(hspi, 0x13);
-	LCD_WriteData8(hspi, 0x2B);
+	LCD_WriteData8(hspi, 0x05);
+	LCD_WriteData8(hspi, 0x09);
+	LCD_WriteData8(hspi, 0x19);
+	LCD_WriteData8(hspi, 0x08);
+	LCD_WriteData8(hspi, 0x14);
+	LCD_WriteData8(hspi, 0x28);
+	LCD_WriteData8(hspi, 0x33);
 	LCD_WriteData8(hspi, 0x3F);
-	LCD_WriteData8(hspi, 0x54);
-	LCD_WriteData8(hspi, 0x4C);
-	LCD_WriteData8(hspi, 0x18);
-	LCD_WriteData8(hspi, 0x0D);
-	LCD_WriteData8(hspi, 0x0B);
-	LCD_WriteData8(hspi, 0x1F);
-	LCD_WriteData8(hspi, 0x23);
+	LCD_WriteData8(hspi, 0x07);
+	LCD_WriteData8(hspi, 0x13);
+	LCD_WriteData8(hspi, 0x14);
+	LCD_WriteData8(hspi, 0x28);
+	LCD_WriteData8(hspi, 0x30);
  
 	LCD_WriteCmd(hspi, 0xE1);
 	LCD_WriteData8(hspi, 0xD0);
-	LCD_WriteData8(hspi, 0x04);
-	LCD_WriteData8(hspi, 0x0C);
-	LCD_WriteData8(hspi, 0x11);
+	LCD_WriteData8(hspi, 0x05);
+	LCD_WriteData8(hspi, 0x09);
+	LCD_WriteData8(hspi, 0x09);
+	LCD_WriteData8(hspi, 0x08);
+	LCD_WriteData8(hspi, 0x03);
+	LCD_WriteData8(hspi, 0x24);
+	LCD_WriteData8(hspi, 0x32);
+	LCD_WriteData8(hspi, 0x32);
+	LCD_WriteData8(hspi, 0x3B);
+	LCD_WriteData8(hspi, 0x14);
 	LCD_WriteData8(hspi, 0x13);
-	LCD_WriteData8(hspi, 0x2C);
-	LCD_WriteData8(hspi, 0x3F);
-	LCD_WriteData8(hspi, 0x44);
-	LCD_WriteData8(hspi, 0x51);
+	LCD_WriteData8(hspi, 0x28);
 	LCD_WriteData8(hspi, 0x2F);
-	LCD_WriteData8(hspi, 0x1F);
-	LCD_WriteData8(hspi, 0x1F);
-	LCD_WriteData8(hspi, 0x20);
-	LCD_WriteData8(hspi, 0x23);
  
     //----------- Setting ---------//
     //解释：设置，用于调整屏幕显示效果，如是否显示，是否反色等
 	LCD_WriteCmd(hspi, 0x21); 
-	LCD_WriteCmd(hspi, 0x11);
-	LCD_WriteCmd(hspi, 0x29);
+	LCD_WriteCmd(hspi, 0x29); //开启显示
 
     //设置显示区域
     LCD_SetRegion(hspi, 0, 0, 239, 239);
     //冲刷sram，防止出现雪花屏
     HAL_GPIO_WritePin(DC_GPIO_Port ,DC_Pin, GPIO_PIN_SET);
+    uint8_t cmd_white = 0xFF;
     for (int i = 0; i < 57600; i++)
     {
-        HAL_SPI_Transmit(hspi, (uint8_t *)0xFFFF, 2, 100);
+        HAL_SPI_Transmit(hspi, &cmd_white, 1, 100);
+        HAL_SPI_Transmit(hspi, &cmd_white, 1, 100);
     }
+    HAL_GPIO_WritePin(GPIOH, RGB_R_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOH, RGB_G_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOH, RGB_B_Pin, GPIO_PIN_SET);
+    HAL_Delay(1500);
+    HAL_GPIO_WritePin(GPIOH, RGB_R_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOH, RGB_G_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOH, RGB_B_Pin, GPIO_PIN_RESET);
+    
+
     HAL_GPIO_WritePin(DC_GPIO_Port ,DC_Pin, GPIO_PIN_RESET);
     
     return HAL_OK;
@@ -107,12 +133,16 @@ HAL_StatusTypeDef LCD_Init(SPI_HandleTypeDef *hspi){
 
 HAL_StatusTypeDef LCD_SetRegion(SPI_HandleTypeDef *hspi, u16 x0, u16 y0, u16 x1, u16 y1)//设置显示区域（x0，y0，x1，y1）
 {
-	LCD_WriteCmd(hspi, 0x2a);
-	LCD_WriteData16(hspi, x0);
-	LCD_WriteData16(hspi, x1);
+    LCD_WriteCmd(hspi, 0x2a);
+	LCD_WriteData8(hspi, 0x00);
+	LCD_WriteData8(hspi, 0x00);
+    LCD_WriteData8(hspi, 0x00);
+    LCD_WriteData8(hspi, 0xEF);
 	LCD_WriteCmd(hspi, 0x2b);
-	LCD_WriteData16(hspi, y0);
-	LCD_WriteData16(hspi, y1);
+	LCD_WriteData8(hspi, 0x00);
+	LCD_WriteData8(hspi, 0x00);
+    LCD_WriteData8(hspi, 0x00);
+    LCD_WriteData8(hspi, 0xEF);
 	LCD_WriteCmd(hspi, 0x2c);	        //下面发送的是数据
     return HAL_OK;  
 
@@ -122,6 +152,7 @@ HAL_StatusTypeDef LCD_WriteCmd(SPI_HandleTypeDef *hspi, uint8_t cmd){
     HAL_SPI_StateTypeDef state = hspi->State;
 
     HAL_GPIO_WritePin(DC_GPIO_Port, DC_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(SCK_GPIO_Port, SCK_Pin, GPIO_PIN_RESET);
     HAL_SPI_Transmit(hspi, &cmd, 1, 100);
     return HAL_OK;  
 }
@@ -130,6 +161,7 @@ HAL_StatusTypeDef LCD_WriteData8(SPI_HandleTypeDef *hspi, uint8_t data){
     HAL_SPI_StateTypeDef state = hspi->State;
 
     HAL_GPIO_WritePin(DC_GPIO_Port, DC_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(SCK_GPIO_Port, SCK_Pin, GPIO_PIN_RESET);
     HAL_SPI_Transmit(hspi, &data, 1, 100);
     return HAL_OK;  
 
@@ -143,6 +175,7 @@ HAL_StatusTypeDef LCD_WriteData16(SPI_HandleTypeDef *hspi, uint16_t data){
     uint8_t data_1 = data & 0xFF;
 
     HAL_GPIO_WritePin(DC_GPIO_Port, DC_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(SCK_GPIO_Port, SCK_Pin, GPIO_PIN_RESET);
     HAL_SPI_Transmit(hspi, &data_0, 1, 100);
     HAL_SPI_Transmit(hspi, &data_1, 1, 100);
     return HAL_OK;  
